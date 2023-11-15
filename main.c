@@ -5,6 +5,10 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+/**
+ * main - Entry point.
+ * return - 0 on success
+ */
 
 extern char **environ;  /* Declaration for environ */
 
@@ -13,7 +17,7 @@ extern char **environ;  /* Declaration for environ */
 #define DELIMITER " \t\r\n\a"
 
 void display_prompt() {
-    printf("myshell> ");
+    printf("$ ");
 }
 
 char *read_command() {
@@ -28,17 +32,31 @@ void execute_command(char *command) {
     char *token;
     char *args[MAX_ARG_SIZE];
     int arg_count = 0;
-    pid_t pid;
-    pid = fork();
+     pid_t pid = fork();
+
     token = strtok(command, DELIMITER);
-    
-    while (token != NULL) {
+    while (token != NULL && arg_count < MAX_ARG_SIZE - 1) {
         args[arg_count++] = token;
         token = strtok(NULL, DELIMITER);
     }
-
     args[arg_count] = NULL;
 
+    /* Check for built-in commands */
+    if (arg_count > 0) {
+        if (strcasecmp(args[0], "exit") == 0) {
+            exit_shell();
+            return;
+        } else if (strcasecmp(args[0], "env") == 0) {
+            char **env = environ;
+            while (*env != NULL) {
+                printf("%s\n", *env);
+                env++;
+            }
+            return;
+        }
+    }
+
+   
     if (pid == 0) {
         /* Child process */
         if (execvp(args[0], args) == -1) {
@@ -51,6 +69,11 @@ void execute_command(char *command) {
     } else {
         perror("Fork failed");
     }
+}
+
+void exit_shell() {
+    printf("Exiting shell.\n");
+    exit(0);
 }
 
 int main() {
