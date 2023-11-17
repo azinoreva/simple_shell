@@ -1,40 +1,19 @@
-#include "main.h"
+/* exit.c */
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include "header.h"
 
-/**
-* my_exit - exit the program with a specified error_no
-* @command: string
-* @args: command arguments
-* @av: main input
-* @status: error num
-*/
-void my_exit(char *command, char **args, char **av, int *status)
-{
-	int error_no = 0;
-	long int str_result;
-	static int error_num = 1;
+void handle_exit() {
+    int status;
+    pid_t pid;
 
-	(void)status;
-	if (args[1])
-	{
-		str_result = custom_atoi(args[1]);
-		if (str_result == 999999 || str_result < 0)
-		{
-			fprintf(stderr, "%s: %d: exit: Illegal number: %s\n", av[0],
-			error_num++, args[1]);
-			free(args);
-			free(command);
-			exit(2);
-		}
-		else
-		{
-			error_no = str_result;
-		}
-	}
-	else
-	{
-		error_no = *status;
-	}
-	free(args);
-	free(command);
-	exit(error_no);
+    while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
+        /* Handle completed child processes to prevent zombie processes */
+    }
+}
+
+void handle_eof() {
+    printf("\n");
+    exit(0);
 }
