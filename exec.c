@@ -1,3 +1,4 @@
+/* exec.c */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -5,31 +6,20 @@
 #include <unistd.h>
 #include "header.h"
 
-int execute_command(char *command) {
+int execute_command(char **args) {
     pid_t pid = fork();
 
     if (pid == -1) {
-        handle_errors("fork");
+        perror("fork");
         return -1;
     } else if (pid == 0) {
-
-        char **args = malloc(sizeof(char *) * 2);
-        if (args == NULL) {
-            handle_errors("malloc");
+        /* Child process */
+        if (execvp(args[0], args) == -1) {
+            perror("execvp");
             exit(EXIT_FAILURE);
         }
-
-        args[0] = command;
-        args[1] = NULL;
-
-        if (execve(command, args, NULL) == -1) {
-            handle_errors("execve");
-            free(args);
-            exit(EXIT_FAILURE);
-        }
-
-        free(args);
     } else {
+        /* Parent process */
         waitpid(pid, NULL, 0);
     }
 
