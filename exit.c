@@ -1,4 +1,3 @@
-/* exit.c */
 #include <stdlib.h>
 #include <stdio.h>
 void handle_exit() {
